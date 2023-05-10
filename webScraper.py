@@ -3,6 +3,9 @@ from bs4 import BeautifulSoup
 from tqdm.auto import tqdm
 import tiktoken
 import csv
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 import uuid
 
 
@@ -50,7 +53,6 @@ def extract_links(url, elem, className):
     elements = soup.find_all('a', class_=className)
 
     links = []
-
     for element in elements:
         href = element.get('href')
         if href:
@@ -74,7 +76,7 @@ def scrapeCategory(url, data):
     return newData
         
 
-def scrapeWebsite(url, data):
+def scrapeCategories(url, data):
     links = extract_links(url, "a", "text-primary underline decoration-primary")
     
     baseLink = "https://examine.com"
@@ -84,6 +86,42 @@ def scrapeWebsite(url, data):
         data = scrapeCategory(l,data)
     
     return data
+
+def scrapeAll(url, data):
+    # setup webdriver
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+
+    # navigate to the page
+    driver.get(url)
+
+    # get the HTML content of the page
+    html_content = driver.page_source
+    
+    driver.quit()
+
+    # parse the content with BeautifulSoup
+    soup = BeautifulSoup(html_content, 'html.parser')
+
+    # find the elements
+    elements = soup.find_all('a', class_='mb-5 flex items-center pl-4')
+
+    links = []
+    print("grabbing links")
+    for element in elements:
+        href = element.get('href')
+        if href:
+            links.append(href)
+
+    baseLink = "https://examine.com"
+    
+    print("scraping links for text")
+    for link in links:
+        l = baseLink + link
+        data = scrapePage(l, data)
+    
+    return data
+        
+    
     
 
 
@@ -96,8 +134,13 @@ def num_tokens_from_string(string: str, encoding_name: str) -> int:
 
 
 def main():
-    data = scrapeWebsite("https://examine.com/categories/", [])
-    # data = scrapeCategory("https://examine.com/categories/brain-health/#all-conditions", [])
+    # data = scrapeCategories("https://examine.com/categories/", [])
+    print("scraping interventions")
+    data = scrapeAll("https://examine.com/interventions/", [])
+    print("scraping outcomes")
+    data = scrapeAll("https://examine.com/outcomes/", data)
+    print("done scraping")
+    
     totalTokens = 0
     for x in data:
         totalTokens += num_tokens_from_string(x["text"], "cl100k_base")
@@ -106,9 +149,9 @@ def main():
     print("Avg Tokens:", avgTokens)
 
     
-    with open('data.csv', 'w', newline='', encoding='utf-8') as f:
+    with open('data.csv', 'a', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=['id', 'url', 'title','header', 'text'])
-        writer.writeheader()
+        # writer.writeheader()
         writer.writerows(data)
     
 

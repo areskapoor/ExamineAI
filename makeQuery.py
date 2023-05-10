@@ -1,8 +1,10 @@
 import openai
 import pinecone
-from tqdm.auto import tqdm
 import upsertData
 from config import OPENAI_API_KEY, PINECONE_API_KEY, PINECONE_INDEX_NAME
+import time
+
+st = time.time()
 
 openai.api_key = OPENAI_API_KEY
 index_name = PINECONE_INDEX_NAME
@@ -13,7 +15,7 @@ index = pinecone.Index(index_name)
 
 limit = 3750
 
-query = "I get a lot of headaches, what could I do to stop them?"
+query = "I have been burping a lot. Is this bad and is there something I could do to burp less?"
 
 def complete(prompt):
     # query text-davinci-003
@@ -39,7 +41,7 @@ def retrieve(query):
     xq = res['data'][0]['embedding']
 
     # get relevant contexts
-    res = index.query(xq, top_k=7, include_metadata=True)
+    res = index.query(xq, top_k=5, include_metadata=True)
     contexts = [
        x['metadata']['title'] + ": " + x['metadata']['header'] + ": " + x['metadata']['text'] + "    URL: " + x['metadata']['url'] + "    score:" + str(x['score']) for x in res['matches']
     ]
@@ -57,7 +59,7 @@ def retrieve(query):
         "Context:\n"
     )
     prompt_end = (
-        f"\n\nQuestion: {query}\nAnswer (Provide a URL from the context paragraphs that you used to generate your response and do not include the score in your answer):"
+        f"\n\nQuestion: {query}\nAnswer (Provide a URL from the context paragraphs that you used to generate your response and do not include the score in your answer. Provide these URL's like so: Citations: URL1, URL2, etc... . DO NOT repeat the same URL multiple times. Also do not include number references. These should be in this form: [4] with any number in between the brackets.):"
     )
     # append contexts until hitting limit
     for i in range(1, len(contexts)):
@@ -78,8 +80,19 @@ def retrieve(query):
 
 prompt = retrieve(query)
 
-print(prompt)
+mt = time.time()
+print("retrieval time:", mt-st)
 
 response = complete(prompt)
 
-print(response)
+et = time.time()
+print("response completion time:", et-mt)
+print("execution time:", et-st)
+
+print(prompt)
+
+with open('outputs.txt', 'a') as f:
+    queryMessage = 'query: ' + query + '\n'
+    responseMessage = 'response: ' + response + '\n\n'
+    f.write(queryMessage)
+    f.write(responseMessage)

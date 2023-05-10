@@ -6,11 +6,14 @@ from tqdm.auto import tqdm
 from config import OPENAI_API_KEY, PINECONE_API_KEY, PINECONE_INDEX_NAME
 
 #Read Data
-data = []
-with open('data.csv', 'r', encoding='utf-8') as f:
-    reader = csv.DictReader(f)
-    for row in reader:
-        data.append(row)
+def readData():
+    data = []
+    with open('data.csv', 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            data.append(row)
+    
+    return data
 
 openai.api_key = OPENAI_API_KEY
 index_name = PINECONE_INDEX_NAME
@@ -41,13 +44,7 @@ def initPinecone():
             metadata_config={'indexed': ['channel_id', 'published']}
         )
 
-initPinecone()
-# connect to index
-index = pinecone.Index(index_name)
-# view index stats
-index.describe_index_stats()
-
-def upsertData():
+def upsertData(index, data):
     batch_size = 100  # how many embeddings we create and insert at once
 
     for i in tqdm(range(0, len(data), batch_size)):
@@ -82,4 +79,9 @@ def upsertData():
         # upsert to Pinecone
         index.upsert(vectors=to_upsert)
 
-upsertData()
+# initPinecone()
+# # connect to index
+# index = pinecone.Index(index_name)
+
+# data = readData()
+# upsertData(index,data)
