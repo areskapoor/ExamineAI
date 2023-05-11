@@ -29,10 +29,10 @@ Your requests inputs and outputs will be written to output.txt locally.
 
 **Note:** Do not run any of the other files directly. For context:
 
-webScraper.py is run to scrape Examine.com and store information needed in data.csv
-upsertData.py embeds the data from the csv file using openai's text embeddings and then upserts them to the given Pinecone database
-makeQuery.py takes in a query, finds the k most similar embeddings to the query from the database and creates a prompt that gets sent to openai's text completion API which returns the response that is returned to the user
-main.py contains the endpoints and makes calls to makeQuery.py to get a response based on a user's query.
+*webScraper.py is run to scrape Examine.com and store information needed in data.csv
+*upsertData.py embeds the data from the csv file using openai's text embeddings and then upserts them to the given Pinecone database
+*makeQuery.py takes in a query, finds the k most similar embeddings to the query from the database and creates a prompt that gets sent to openai's text completion API which returns the response that is returned to the user
+*main.py contains the endpoints and makes calls to makeQuery.py to get a response based on a user's query.
 
 ##Contributing
 
