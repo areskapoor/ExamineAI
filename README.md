@@ -15,7 +15,7 @@ AI Chatbot that gives evidence-based responses from Examine.com information
 ```
 pip install -r requirements.txt
 ```
-4. Store Pinecone, OpenAI API keys and Pinecone index name in config.py
+3. Store Pinecone, OpenAI API keys and Pinecone index name in config.py
 
 ## Usage
 
@@ -34,7 +34,7 @@ Your requests inputs and outputs will be written to output.txt locally.
 * *makeQuery.py* takes in a query, finds the k most similar embeddings to the query from the database and creates a prompt that gets sent to openai's text completion API which returns the response that is returned to the user
 * *main.py* contains the endpoints and makes calls to makeQuery.py to get a response based on a user's query.
 
-##Contributing
+## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
