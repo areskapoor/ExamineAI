@@ -9,7 +9,7 @@ from config import OPENAI_API_KEY, PINECONE_API_KEY, PINECONE_INDEX_NAME, limit
 app = FastAPI()
 
 class Query(BaseModel):
-    text: str
+    query: str
 
 #Initialize DB
 initPinecone()
