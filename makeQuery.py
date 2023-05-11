@@ -1,21 +1,15 @@
 import openai
 import pinecone
 import upsertData
-from config import OPENAI_API_KEY, PINECONE_API_KEY, PINECONE_INDEX_NAME
-import time
+from config import OPENAI_API_KEY, PINECONE_API_KEY, PINECONE_INDEX_NAME, limit
 
-st = time.time()
 
 openai.api_key = OPENAI_API_KEY
-index_name = PINECONE_INDEX_NAME
 embed_model = "text-embedding-ada-002"
 
-upsertData.initPinecone()
-index = pinecone.Index(index_name)
-
-limit = 3750
-
-query = "I have been burping a lot. Is this bad and is there something I could do to burp less?"
+# #Use when running this file directly
+# upsertData.initPinecone()
+# index = pinecone.Index(PINECONE_INDEX_NAME)
 
 def complete(prompt):
     # query text-davinci-003
@@ -31,7 +25,8 @@ def complete(prompt):
     )
     return res['choices'][0]['text'].strip()
 
-def retrieve(query):
+
+def retrieve(query, index):
     res = openai.Embedding.create(
         input=[query],
         engine=embed_model
@@ -43,7 +38,7 @@ def retrieve(query):
     # get relevant contexts
     res = index.query(xq, top_k=5, include_metadata=True)
     contexts = [
-       x['metadata']['title'] + ": " + x['metadata']['header'] + ": " + x['metadata']['text'] + "    URL: " + x['metadata']['url'] + "    score:" + str(x['score']) for x in res['matches']
+       x['metadata']['title'] + ": " + x['metadata']['header'] + ": " + x['metadata']['text'] + "    score:" + str(x['score']) for x in res['matches']
     ]
 
     # build our prompt with the retrieved contexts included
@@ -52,14 +47,12 @@ def retrieve(query):
             You are helpful, articulate and concise, and make sure to only speak the truth. 
             You are able to answer any health-related questions, but mainly refer to the
             information given to you in the context below. You take more information from 
-            the context paragraphs with a higher score number, and include the URL's of context paragraph's 
-            you used to generate your response. This URL is to help the patient understand where the information you
-            are sharing with them is coming from.""" + 
+            the context paragraphs with a higher score number.""" + 
         "Answer the question based on the context below.\n\n"+
         "Context:\n"
     )
     prompt_end = (
-        f"\n\nQuestion: {query}\nAnswer (Provide a URL from the context paragraphs that you used to generate your response and do not include the score in your answer. Provide these URL's like so: Citations: URL1, URL2, etc... . DO NOT repeat the same URL multiple times. Also do not include number references. These should be in this form: [4] with any number in between the brackets.):"
+        f"\n\nQuestion: {query}\nAnswer (Do not include number references. These should be in this form: [4] with any number in between the brackets.):"
     )
     # append contexts until hitting limit
     for i in range(1, len(contexts)):
@@ -76,23 +69,12 @@ def retrieve(query):
                 "\n\n---\n\n".join(contexts) +
                 prompt_end
             )
-    return prompt
+    return prompt, res['matches']
 
-prompt = retrieve(query)
 
-mt = time.time()
-print("retrieval time:", mt-st)
-
-response = complete(prompt)
-
-et = time.time()
-print("response completion time:", et-mt)
-print("execution time:", et-st)
-
-print(prompt)
-
-with open('outputs.txt', 'a') as f:
-    queryMessage = 'query: ' + query + '\n'
-    responseMessage = 'response: ' + response + '\n\n'
-    f.write(queryMessage)
-    f.write(responseMessage)
+def writePromptResponse(query, response):
+    with open('outputs.txt', 'a') as f:
+        queryMessage = 'query: ' + query + '\n'
+        responseMessage = 'response: ' + response + '\n\n'
+        f.write(queryMessage)
+        f.write(responseMessage)
