@@ -25,6 +25,7 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 It should give you the information in the form: `Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)`
+
 3. Then go to `http://127.0.0.1:8000/docs` (replace URL with the URL given to you by uvicorn) to see how to interact with the API and make requests.
 Your requests inputs and outputs will be written to output.txt locally.
 
