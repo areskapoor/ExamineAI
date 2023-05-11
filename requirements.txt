@@ -1,0 +1,4 @@
+fastapi==0.95.1
+pydantic==1.10.7
+pinecone==2.2.1
+openai==0.27.6

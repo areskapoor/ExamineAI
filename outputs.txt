@@ -39,3 +39,6 @@ response: Burping is a normal bodily function and is usually caused by swallowin
 query: I have been burping a lot. Is this bad and is there something I could do to burp less?
 response: Burping is a normal bodily function and is usually caused by swallowing air. If you are burping excessively, it could be a sign of Gastroesophageal Reflux Disease (GERD). To reduce burping, you can try eating smaller meals, avoiding meals close to bedtime, and limiting common triggers such as spicy, acidic, or fatty foods. Additionally, you can try diaphragmatic breathing exercises, which may increase the pressure of the lower esophageal sphincter and alleviate reflux.
 
+query: I hurt my Achilles tendon on my right leg. Should avoid movements like squats and lunges while it hurts?
+response: It is recommended to avoid movements like squats and lunges while your Achilles tendon is hurting. Rest and/or lowering the intensity of exercise can help reduce the pain and soreness associated with the injury. Additionally, acetaminophen or oral and/or topical nonsteroidal anti-inflammatory drugs may decrease soreness; however, prolonged use of these medications is not recommended.
+
